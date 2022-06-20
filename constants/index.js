@@ -18,7 +18,8 @@ export const abi = [
             }
         ],
         "stateMutability": "nonpayable",
-        "type": "constructor"
+        "type": "constructor",
+        "name": "constructor"
     },
     {
         "inputs": [
@@ -275,6 +276,13 @@ export const abi = [
     },
     {
         "inputs": [],
+        "name": "startNewRound",
+        "outputs": [],
+        "stateMutability": "nonpayable",
+        "type": "function"
+    },
+    {
+        "inputs": [],
         "name": "state",
         "outputs": [
             {
@@ -326,5 +334,5 @@ export const abi = [
         "stateMutability": "payable",
         "type": "function"
     }
-]
-export const CONTRACT_ADDRESS = "0x599b36E88BC5A52684c185c5b96ef5625A526D24"
+];
+export const CONTRACT_ADDRESS = "0x49dDd011bcCB290923f846a8ec7cbC352fA25590";

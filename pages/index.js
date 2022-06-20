@@ -9,7 +9,7 @@ export default function Home() {
   // walletConnected keep track of whether the user's wallet is connected or not
   const [walletConnected, setWalletConnected] = useState(false);
   // lotteryState keeps track of whether the lottery is open or closed
-  const [lotteryState, setLotteryState] = useState("0");
+  const [lotteryState, setLotteryState] = useState(0);
   // isWinner keeps track of whether the address won the lottery
   const [isWinner, setIsWinner] = useState(false);
   // loading is set to true when we are waiting for a transaction to get mined
@@ -257,6 +257,20 @@ export default function Home() {
   };
 
   /**
+   * startNewRound: start a new round
+   */
+  const startNewRound = async () => {
+    try {
+      const signer = await getProviderOrSigner(true);
+      const lotteryContract = new Contract(CONTRACT_ADDRESS, abi, signer);
+      await lotteryContract.startNewRound();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+
+  /**
    * Returns a Provider or Signer object representing the Ethereum RPC with or without the
    * signing capabilities of metamask attached
    *
@@ -306,10 +320,10 @@ export default function Home() {
       getOwner();
       checkHasEntered();
 
-      // // set an interval to check if address has entered every 5 seconds
-      // setInterval(async function () {
-      //   await checkHasEntered();
-      // }, 5 * 1000);
+      // set an interval to check lottery state every 5 seconds
+      setInterval(async function () {
+        await checkLotteryState();
+      }, 5 * 1000);
 
       // Set an interval which gets called every 5 seconds to check if there's a winner
       setInterval(async function () {
@@ -341,24 +355,6 @@ export default function Home() {
       return <button className={styles.button}>Loading...</button>;
     }
 
-    // If connected user is the owner, and entry count has exceeded minimum threshold, allow user to assign winner
-    if (isOwner && entryCount >= minEntryCount) {
-      return (
-        <button className={styles.button} onClick={assignWinner}>
-          Assign winner!
-        </button>
-      );
-    }
-
-    // If lottery is paused, tell them that
-    if (lotteryState == "1") {
-      return (
-        <div>
-          <div className={styles.description}>Lottery paused, come back later!</div>
-        </div>
-      );
-    }
-
     // If address is winner
     if (isWinner) {
       return (
@@ -372,6 +368,34 @@ export default function Home() {
         </div>
       );
     }
+
+    // If lottery is closed and user is owner, prompt to start new round
+    if (isOwner && lotteryState == 1) {
+      return (
+        <button className={styles.button} onClick={startNewRound}>
+          Start a new round!
+        </button>
+      );
+    }
+
+    // If connected user is the owner, and entry count has exceeded minimum threshold, allow user to assign winner
+    if (isOwner && entryCount >= minEntryCount) {
+      return (
+        <button className={styles.button} onClick={assignWinner}>
+          Assign winner!
+        </button>
+      );
+    }
+
+    // If lottery is paused, tell them that
+    if (lotteryState == 1) {
+      return (
+        <div>
+          <div className={styles.description}>Lottery paused, come back later!</div>
+        </div>
+      );
+    }
+
 
     // If user has entered, thank them
     if (hasEntered) {
